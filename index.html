@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f7fb">
+    <title>Diario de Estudio</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="heatmap-logic.js" defer></script>
+    <script src="session-logic.js" defer></script>
+    <script src="objective-logic.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Tu espacio de aprendizaje</p>
+          <h1>Diario de Estudio</h1>
+          <p class="intro">Un paso cada día. Registra tu progreso y sigue adelante.</p>
+        </div>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false">🌙 Tema oscuro</button>
+      </header>
+
+      <section class="streak-card" aria-labelledby="streak-title">
+        <div class="streak-copy">
+          <p class="eyebrow">Constancia, día a día</p>
+          <h2 id="streak-title">Días seguidos estudiando</h2>
+          <p class="streak-caption" id="streak-caption">Cada sesión cuenta.</p>
+        </div>
+        <div class="streak-metrics">
+          <p class="streak-count" aria-live="polite">
+            <span class="fire" aria-hidden="true">🔥</span>
+            <span id="streak-count">0</span>
+            <span class="streak-days" id="streak-days">días</span>
+          </p>
+          <div class="best-streak is-empty" id="best-streak" aria-live="polite">
+            <p class="best-streak-label">Mejor marca de días seguidos estudiando <span aria-hidden="true">✨</span></p>
+            <p class="best-streak-value" id="best-streak-value" hidden>
+              <span id="best-streak-count">0</span>
+              <span id="best-streak-days">días</span>
+            </p>
+            <p class="best-streak-empty" id="best-streak-empty">Aún no hay días seguidos estudiando</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="overview-section" aria-labelledby="overview-title">
+        <div class="section-heading compact-heading">
+          <p class="eyebrow">Un vistazo a tu avance</p>
+          <h2 id="overview-title">Estadísticas</h2>
+          <p class="section-note">Los valores siguen los filtros de sesiones.</p>
+        </div>
+        <div class="statistics-grid" aria-live="polite">
+          <article class="stat-card"><span class="stat-label">Sesiones</span><strong id="stat-sessions">0</strong></article>
+          <article class="stat-card"><span class="stat-label">Días de estudio</span><strong id="stat-days">0</strong></article>
+          <article class="stat-card"><span class="stat-label">Tiempo total</span><strong id="stat-minutes">0 min</strong></article>
+          <article class="stat-card"><span class="stat-label">Promedio por sesión</span><strong id="stat-average-session">—</strong></article>
+          <article class="stat-card"><span class="stat-label">Promedio por día</span><strong id="stat-average-day">—</strong></article>
+          <article class="stat-card"><span class="stat-label">Tiempo esta semana</span><strong id="stat-week-minutes">0 min</strong></article>
+          <article class="stat-card"><span class="stat-label">Días estudiados este mes</span><strong id="stat-month-days">0</strong></article>
+        </div>
+      </section>
+
+      <section class="heatmap-section" aria-labelledby="heatmap-title">
+        <div class="section-heading compact-heading">
+          <p class="eyebrow">Tu ritmo, semana a semana</p>
+          <h2 id="heatmap-title">Actividad de estudio</h2>
+          <p class="section-note">Minutos estudiados durante las últimas 12 semanas.</p>
+        </div>
+        <div class="heatmap-panel">
+          <div class="heatmap-scroll">
+            <div class="heatmap-layout">
+              <div class="heatmap-weekday-labels" aria-hidden="true">
+                <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+              </div>
+              <div class="heatmap-grid" id="heatmap-grid" role="grid" aria-label="Actividad de estudio durante las últimas 12 semanas"></div>
+            </div>
+          </div>
+          <ul class="heatmap-legend" aria-label="Leyenda de minutos por día">
+            <li><span class="heatmap-swatch heatmap-level-0" aria-hidden="true"></span><span>Sin estudio · 0 min</span></li>
+            <li><span class="heatmap-swatch heatmap-level-1" aria-hidden="true"></span><span>1–30 min</span></li>
+            <li><span class="heatmap-swatch heatmap-level-2" aria-hidden="true"></span><span>31–60 min</span></li>
+            <li><span class="heatmap-swatch heatmap-level-3" aria-hidden="true"></span><span>61–90 min</span></li>
+            <li><span class="heatmap-swatch heatmap-level-4" aria-hidden="true"></span><span>Más de 90 min</span></li>
+          </ul>
+          <p class="heatmap-detail" id="heatmap-detail" role="status" aria-live="polite" aria-atomic="true"></p>
+        </div>
+      </section>
+
+      <section class="objective-section" aria-labelledby="objective-title">
+        <div class="section-heading compact-heading">
+          <p class="eyebrow">Planifica tu semana</p>
+          <h2 id="objective-title">Objetivo semanal</h2>
+          <p class="section-note">Fija una meta y consulta tu avance de lunes a domingo.</p>
+        </div>
+        <div class="objective-panel panel">
+          <div class="objective-controls">
+            <form id="base-goal-form" class="objective-form">
+              <h3>Objetivo base</h3>
+              <p class="objective-help">Se repetirá cada semana hasta que lo cambies.</p>
+              <label for="base-goal-hours">Objetivo base (horas enteras)</label>
+              <input id="base-goal-hours" name="baseGoalHours" type="number" min="1" step="1" inputmode="numeric" placeholder="Por ejemplo, 5">
+              <button id="save-base-goal" type="button">Guardar objetivo base</button>
+              <p class="objective-form-message" id="base-goal-message" role="status" aria-live="polite"></p>
+            </form>
+
+            <form id="week-exception-form" class="objective-form">
+              <h3>Excepción semanal</h3>
+              <p class="objective-help">Puedes ajustar esta semana o una futura. Las semanas pasadas son solo de lectura.</p>
+              <label for="objective-week">Semana</label>
+              <select id="objective-week" name="week">
+                <option value="current">Semana actual</option>
+                <option value="future">Semana futura</option>
+              </select>
+              <label for="exception-goal-hours">Objetivo de esta semana (horas enteras)</label>
+              <input id="exception-goal-hours" name="exceptionGoalHours" type="number" min="1" step="1" inputmode="numeric" placeholder="Por ejemplo, 3">
+              <label class="objective-choice"><input id="exception-no-goal" name="exception" type="checkbox"> Sin objetivo esta semana</label>
+              <div class="objective-actions">
+                <button id="save-week-exception" type="button">Guardar excepción</button>
+                <button id="remove-week-exception" class="secondary-button" type="button">Quitar excepción</button>
+              </div>
+              <p class="objective-form-message" id="exception-message" role="status" aria-live="polite"></p>
+            </form>
+          </div>
+
+          <div class="objective-result" aria-live="polite">
+            <div class="objective-no-goal" id="objective-no-goal">
+              <strong>Aún no hay un objetivo para esta semana.</strong>
+              <p>Fija un objetivo para ver tus horas estudiadas, el porcentaje y tu ritmo.</p>
+            </div>
+            <div class="objective-indicator" id="objective-indicator" hidden>
+              <div class="objective-summary">
+                <p class="objective-label">Estudiado esta semana</p>
+                <strong class="objective-studied" id="objective-studied">0 h 0 min</strong>
+                <p class="objective-target">Objetivo: <span id="objective-goal">0 h</span></p>
+                <p class="objective-percentage" id="objective-percentage">0 %</p>
+                <p class="objective-status" id="objective-status" role="status"></p>
+              </div>
+              <div class="objective-circle-wrap">
+                <svg class="objective-circle" viewBox="0 0 120 120" role="img" aria-labelledby="objective-circle-label">
+                  <title id="objective-circle-label">Progreso semanal: 0 %</title>
+                  <circle class="objective-circle-track" cx="60" cy="60" r="50" aria-hidden="true"></circle>
+                  <circle class="objective-circle-progress" id="objective-circle-progress" cx="60" cy="60" r="50" pathLength="100" stroke-dasharray="0 100" aria-hidden="true"></circle>
+                </svg>
+                <span class="visually-hidden">El porcentaje y las horas estudiadas también se muestran como texto.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="achievements-section" aria-labelledby="achievements-title">
+        <div class="section-heading compact-heading">
+          <p class="eyebrow">Cada paso cuenta</p>
+          <h2 id="achievements-title">Logros y medallas</h2>
+          <p class="section-note">Se calculan con todo tu historial, incluidos los datos importados.</p>
+        </div>
+        <div class="achievement-grid" id="achievement-list" aria-live="polite"></div>
+      </section>
+
+      <div class="content-grid">
+        <section class="panel form-panel" aria-labelledby="form-title">
+          <div class="section-heading">
+            <p class="eyebrow" id="form-eyebrow">Nueva entrada</p>
+            <h2 id="form-title">Registrar una sesión</h2>
+          </div>
+
+          <form id="session-form">
+            <label for="session-date">Fecha</label>
+            <input id="session-date" name="date" type="date" required>
+
+            <label for="session-topic">Materia o tema</label>
+            <input id="session-topic" name="topic" type="text" maxlength="120" placeholder="¿Qué has estudiado?" required>
+
+            <label for="session-minutes">Minutos</label>
+            <input id="session-minutes" name="minutes" type="number" min="0" step="any" placeholder="Por ejemplo, 45" required>
+
+            <button type="submit">Guardar sesión</button>
+            <button class="secondary-button cancel-edit" id="cancel-edit" type="button" hidden>Cancelar edición</button>
+            <p class="form-message" id="form-message" role="status" aria-live="polite"></p>
+          </form>
+        </section>
+
+        <section class="panel sessions-panel" aria-labelledby="sessions-title">
+          <div class="section-heading sessions-heading">
+            <div>
+              <p class="eyebrow">Tu progreso</p>
+              <h2 id="sessions-title">Sesiones</h2>
+            </div>
+            <span class="session-total" id="session-total">0 sesiones</span>
+          </div>
+
+          <div class="filter-panel" aria-label="Filtros de sesiones">
+            <div class="filter-field">
+              <label for="period-filter">Periodo</label>
+              <select id="period-filter">
+                <option value="all">Todo el historial</option>
+                <option value="7">Últimos 7 días</option>
+                <option value="30">Últimos 30 días</option>
+                <option value="90">Últimos 90 días</option>
+                <option value="365">Último año</option>
+              </select>
+            </div>
+            <div class="filter-field">
+              <label for="topic-filter">Materia</label>
+              <select id="topic-filter"><option value="">Todas las materias</option></select>
+            </div>
+            <div class="filter-field">
+              <label for="date-from">Desde</label>
+              <input id="date-from" type="date">
+            </div>
+            <div class="filter-field">
+              <label for="date-to">Hasta</label>
+              <input id="date-to" type="date">
+            </div>
+            <button class="secondary-button reset-filters" id="reset-filters" type="button">Limpiar filtros</button>
+          </div>
+          <p class="filter-message" id="filter-message" role="status" aria-live="polite"></p>
+          <p class="filter-summary" id="filter-summary" aria-live="polite"></p>
+
+          <ul class="session-list" id="session-list" aria-live="polite"></ul>
+          <p class="empty-state" id="empty-state">Todavía no hay sesiones. ¡Registra la primera!</p>
+
+          <div class="backup-tools" aria-labelledby="backup-title">
+            <div>
+              <h3 id="backup-title">Tus datos</h3>
+              <p>Guarda una copia o prueba la app con un historial ficticio.</p>
+            </div>
+            <div class="backup-buttons">
+              <button class="secondary-button" id="export-backup" type="button">Exportar copia</button>
+              <button class="secondary-button" id="import-backup" type="button">Importar JSON</button>
+              <button class="secondary-button sample-button" id="download-sample" type="button">Descargar datos de prueba</button>
+              <input id="backup-file" class="visually-hidden" type="file" accept="application/json,.json" aria-label="Elegir archivo JSON para importar">
+            </div>
+            <p class="backup-note">Importar reemplaza las sesiones actuales. El historial de prueba contiene cerca de 1.000 sesiones de 10 materias y no se carga automáticamente.</p>
+            <p class="backup-message" id="backup-message" role="status" aria-live="polite"></p>
+          </div>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>
